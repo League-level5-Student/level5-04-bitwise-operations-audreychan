@@ -2,6 +2,7 @@ package _04_Base64_Decoder;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
 
 public class Base64Decoder {
 	/*
@@ -37,19 +38,59 @@ public class Base64Decoder {
 	//1. Complete this method so that it returns the the element in
 	//   the base64Chars array that corresponds to the passed in char.
 	public static byte convertBase64Char(char c){
-		return 0;
+		byte converted = 0;
+		for(int i = 0; i < base64Chars.length; i++) {
+			if(base64Chars[i] == c) {
+				converted = (byte) i;
+				break;
+			}
+		}
+		return converted;
 	}
 	
 	//2. Complete this method so that it will take in a string that is 4 
 	//   characters long and return an array of 3 bytes (24 bits). The byte 
 	//   array should be the binary value of the encoded characters.
 	public static byte[] convert4CharsTo24Bits(String s){
-		return null;
+		byte[] fin = new byte[3];
+		
+		char[] arr = s.toCharArray();
+		
+		fin[0] = (byte) ((convertBase64Char(arr[0]) << 2) + (convertBase64Char(arr[1]) >> 4));
+		fin[1] = (byte) ((convertBase64Char(arr[1]) << 4) + (convertBase64Char(arr[2]) >> 2));
+		fin[2] = (byte) ((convertBase64Char(arr[2]) << 6) + convertBase64Char(arr[3]));
+		
+		return fin;
 	}
 	
 	//3. Complete this method so that it takes in a string of any length
 	//   and returns the full byte array of the decoded base64 characters.
 	public static byte[] base64StringToByteArray(String file) {
-		return null;
+		//ArrayList<Byte> fin = new ArrayList<Byte>();
+		byte[] fin;
+		if(file.length()%4 == 0) fin = new byte[file.length()/4*3];
+		else fin = new byte[(file.length()/4+1)*3];
+		
+		int index = 0;
+		
+		for(int i = 0; i < file.length(); i += 4) {
+			byte[] temp = convert4CharsTo24Bits(file.substring(i, i+4));
+			fin[index] = (temp[0]);
+			fin[index+1] = (temp[1]);
+			fin[index+2] = (temp[2]);
+			index += 3;
+		}
+		
+		switch(file.length()%4) {
+		case 3:
+			fin[index+2] = convertBase64Char(file.charAt(file.length()-3));
+		case 2:
+			fin[index+1] = convertBase64Char(file.charAt(file.length()-2));
+		case 1:
+			fin[index] = convertBase64Char(file.charAt(file.length()-1));
+			
+		}
+		
+		return fin;
 	}
 }
